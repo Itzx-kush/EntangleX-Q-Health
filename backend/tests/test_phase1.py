@@ -21,7 +21,7 @@ class PhaseOneTests(unittest.TestCase):
         self.assertIn(payload["quantum_simulator"], {"available","unavailable"})
         self.assertIn("qiskit", payload["packages"])
     def test_no_fake_metrics_in_frontend(self):
-        source=(Path(__file__).parents[2]/"frontend/src/App.tsx").read_text()
+        source=(Path(__file__).parents[2]/"frontend/src/App.tsx").read_text(encoding="utf-8")
         for fake in ("accuracy = 0.94", "92.1%", "88.7%"):
             self.assertNotIn(fake, source)
 

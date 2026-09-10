@@ -24,7 +24,9 @@ class DatasetService:
         digest=hashlib.sha256(content).hexdigest()
         existing=self.repository.find_by_hash(digest)
         if existing:
-            raise DatasetError("DUPLICATE_DATASET", "This exact dataset has already been uploaded.", existing["id"],409)
+            summary=self._summary(existing)
+            summary["warnings"]=[*summary["warnings"],"Identical dataset already registered; the existing record was reused."]
+            return summary
         frame=load_dataframe(content,extension)
         warnings=validate_frame(frame)
         profile=profile_frame(frame)

@@ -1,0 +1,2 @@
+-r requirements.txt
+qiskit-ibm-runtime>=0.33,<1.0
