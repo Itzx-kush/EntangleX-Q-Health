@@ -1,0 +1,5 @@
+import test from "node:test";import assert from "node:assert/strict";import {readFileSync} from "node:fs";
+const source=readFileSync(new URL("../src/App.tsx",import.meta.url),"utf8");
+test("medical disclaimer is present",()=>assert.match(source,/not a substitute for professional medical diagnosis/));
+test("quantum advantage is not claimed",()=>{assert.doesNotMatch(source,/guaranteed quantum advantage/i);assert.match(source,/No assumed quantum advantage/)});
+test("no demo metrics are hardcoded",()=>{for(const value of ["0.94","92.1%","88.7%"]){assert.equal(source.includes(value),false)}});

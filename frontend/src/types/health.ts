@@ -1,0 +1,1 @@
+export type HealthStatus={status:"ok"|"degraded";service:string;version:string;database:{status:string;error:string|null};quantum:{backend:string;simulator:"available"|"unavailable";required_for_phase:boolean};runtime:{python:string}};
