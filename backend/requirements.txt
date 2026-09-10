@@ -12,3 +12,5 @@ numpy>=2.0,<3.0
 scikit-learn>=1.5,<2.0
 joblib>=1.4,<2.0
 imbalanced-learn>=0.12,<1.0
+qiskit>=1.2,<2.0
+qiskit-aer>=0.15,<1.0
