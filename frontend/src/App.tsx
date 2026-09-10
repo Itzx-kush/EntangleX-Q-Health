@@ -1,64 +1,28 @@
-import { useEffect, useRef, useState } from "react";
-import { createRoot } from "react-dom/client";
-
-import { getHealth, previewDataset, selectTarget, uploadDataset } from "./services/api";
-import type { DatasetPreview, DatasetSummary } from "./types/dataset";
-import type { HealthStatus } from "./types/health";
-
-const stages = ["Upload dataset", "Prepare data", "Select features", "Reduce dimensions", "Train models", "Compare", "Explain", "Predict"];
-
-function App() {
-  const [health, setHealth] = useState<HealthStatus | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-  const [dataset, setDataset] = useState<DatasetSummary | null>(null);
-  const [preview, setPreview] = useState<DatasetPreview | null>(null);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const input = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => { getHealth().then(setHealth).catch(() => setHealth(null)); }, []);
-
-  async function handleUpload() {
-    if (!file) return;
-    setBusy(true); setMessage(null);
-    try {
-      const result = await uploadDataset(file);
-      setDataset(result);
-      setPreview(await previewDataset(result.id));
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Upload failed");
-    } finally { setBusy(false); }
-  }
-
-  async function handleTarget(value: string) {
-    if (!dataset || !value) return;
-    setBusy(true); setMessage(null);
-    try { setDataset(await selectTarget(dataset.id, value)); }
-    catch (error) { setMessage(error instanceof Error ? error.message : "Target validation failed"); }
-    finally { setBusy(false); }
-  }
-
-  function clearDataset() {
-    setFile(null); setDataset(null); setPreview(null); setMessage(null);
-    if (input.current) input.current.value = "";
-  }
-
-  const columns = dataset ? [...dataset.numeric_columns, ...dataset.categorical_columns, ...dataset.datetime_columns] : [];
-
-  return (
-    <div className="app">
-      <header className="topbar"><div className="brand"><div className="mark">Ξ</div><div><strong>EntangleX</strong><span>Q-Health</span></div></div><div className={`status ${health?.status === "ok" ? "ok" : ""}`}><span />{health ? `Platform ${health.status}` : "Backend offline"}</div></header>
-      <main>
-        <section className="hero compact"><div className="eyebrow">PHASE 2 • DATASET INGESTION</div><h1>Bring biomedical data into a defensible workflow.</h1><p>Upload a CSV or XLSX benchmark dataset. EntangleX validates the file, inspects its schema, records a deterministic hash, and reports quality issues without silently repairing them.</p></section>
-        <section className="workspace"><div className="uploadCard"><div className="panelHead"><div><div className="eyebrow">DATASET</div><h2>Upload and inspect</h2></div><span className="tag">Maximum 25 MB</span></div><input ref={input} type="file" accept=".csv,.xlsx" hidden onChange={(event: { target: HTMLInputElement }) => setFile(event.target.files?.[0] ?? null)} /><button onClick={() => input.current?.click()} className="drop">{file ? <><b>{file.name}</b><span>{(file.size / 1024).toFixed(1)} KB selected</span></> : <><b>Choose CSV or XLSX</b><span>Files are validated before storage</span></>}</button><div className="actions"><button onClick={handleUpload} disabled={!file || busy}>{busy ? "Validating…" : "Upload dataset"}</button>{file && <button className="secondary" onClick={clearDataset}>Clear</button>}</div>{message && <div className="error">{message}</div>}</div></section>
-        {dataset && <section className="result"><div className="resultHead"><div><div className="eyebrow">DATASET REGISTERED</div><h2>{dataset.name}</h2><p>{dataset.original_filename} • SHA-256 {dataset.sha256.slice(0, 12)}…</p></div><label>Target column<select value={dataset.target_column ?? ""} onChange={(event: { target: HTMLSelectElement }) => handleTarget(event.target.value)}><option value="">Select target</option>{columns.map((column) => <option key={column}>{column}</option>)}</select></label></div><div className="metrics"><Metric label="Samples" value={dataset.rows} /><Metric label="Features" value={dataset.columns} /><Metric label="Missing" value={dataset.total_missing_values} /><Metric label="Duplicates" value={dataset.duplicate_rows} /></div>{dataset.class_distribution && <div className="classes"><b>Binary target distribution</b>{Object.entries(dataset.class_distribution).map(([label, count]) => <span key={label}>Class {label}: {count}</span>)}</div>}{dataset.warnings.map((warning) => <div className="warning" key={warning}>{warning}</div>)}<div className="schema"><div><b>Numerical</b><span>{dataset.numeric_columns.join(", ") || "None"}</span></div><div><b>Categorical</b><span>{dataset.categorical_columns.join(", ") || "None"}</span></div></div>{preview && <div className="tableWrap"><table><thead><tr>{preview.columns.map((column) => <th key={column}>{column}</th>)}</tr></thead><tbody>{preview.rows.map((row, index) => <tr key={index}>{preview.columns.map((column) => <td key={column}>{row[column] === null ? "—" : String(row[column])}</td>)}</tr>)}</tbody></table><p>Showing {preview.rows.length} of {preview.total_rows} rows. Raw values are preview-only.</p></div>}</section>}
-        <section className="panel"><div className="panelHead"><div><div className="eyebrow">RESEARCH WORKFLOW</div><h2>One defensible path from data to evidence</h2></div><span className="tag">Simulator-first</span></div><div className="flow">{stages.map((stage, index) => <div className={`step ${index === 0 ? "active" : ""}`} key={stage}><span>{String(index + 1).padStart(2, "0")}</span><b>{stage}</b></div>)}</div></section>
-        <section className="notice"><b>Research use only.</b> This platform is a research and decision-support prototype. Predictions based on benchmark or user-provided datasets are not a substitute for professional medical diagnosis or clinical validation.</section>
-      </main>
-      <footer>EntangleX Q-Health • Measured evidence • No assumed quantum advantage</footer>
-    </div>
-  );
+import {useEffect,useRef,useState} from "react";
+import {createRoot} from "react-dom/client";
+import {getHealth,previewDataset,runPreprocessing,selectTarget,uploadDataset} from "./services/api";
+import type {DatasetPreview,DatasetSummary} from "./types/dataset";
+import type {HealthStatus} from "./types/health";
+import type {PreprocessingConfig,PreprocessingRun} from "./types/preprocessing";
+const stages=["Upload dataset","Prepare data","Select features","Reduce dimensions","Train models","Compare","Explain","Predict"];
+const defaults:Omit<PreprocessingConfig,"dataset_id">={test_size:.2,random_seed:42,duplicate_mode:"remove",numerical_missing:"median",categorical_missing:"most_frequent",categorical_encoding:"one_hot",scaling:"standard",outlier_method:null,outlier_mode:"keep",outlier_threshold:1.5};
+function App(){
+ const [health,setHealth]=useState<HealthStatus|null>(null);const [file,setFile]=useState<File|null>(null);const [dataset,setDataset]=useState<DatasetSummary|null>(null);const [preview,setPreview]=useState<DatasetPreview|null>(null);const [config,setConfig]=useState(defaults);const [run,setRun]=useState<PreprocessingRun|null>(null);const [busy,setBusy]=useState(false);const [message,setMessage]=useState<string|null>(null);const input=useRef<HTMLInputElement|null>(null);
+ useEffect(()=>{getHealth().then(setHealth).catch(()=>setHealth(null))},[]);
+ async function upload(){if(!file)return;setBusy(true);setMessage(null);try{const result=await uploadDataset(file);setDataset(result);setPreview(await previewDataset(result.id));setRun(null)}catch(error){setMessage(error instanceof Error?error.message:"Upload failed")}finally{setBusy(false)}}
+ async function target(value:string){if(!dataset||!value)return;setBusy(true);setMessage(null);try{setDataset(await selectTarget(dataset.id,value));setRun(null)}catch(error){setMessage(error instanceof Error?error.message:"Target validation failed")}finally{setBusy(false)}}
+ async function preprocess(){if(!dataset?.target_column)return;setBusy(true);setMessage(null);try{setRun(await runPreprocessing({...config,dataset_id:dataset.id}))}catch(error){setMessage(error instanceof Error?error.message:"Preprocessing failed")}finally{setBusy(false)}}
+ function clear(){setFile(null);setDataset(null);setPreview(null);setRun(null);setMessage(null);if(input.current)input.current.value=""}
+ const columns=dataset?[...dataset.numeric_columns,...dataset.categorical_columns,...dataset.datetime_columns]:[];const active=run?1:0;
+ return <div className="app"><header className="topbar"><div className="brand"><div className="mark">Ξ</div><div><strong>EntangleX</strong><span>Q-Health</span></div></div><div className={`status ${health?.status==="ok"?"ok":""}`}><span/>{health?`Platform ${health.status}`:"Backend offline"}</div></header><main>
+ <section className="hero compact"><div className="eyebrow">PHASE 3 • LEAKAGE-SAFE PREPROCESSING</div><h1>Prepare data without letting the test set influence training.</h1><p>Configure cleaning, encoding, outlier handling and scaling. EntangleX splits first, then fits learned transformations on training data only.</p></section>
+ <section className="workspace"><div className="uploadCard"><div className="panelHead"><div><div className="eyebrow">DATASET</div><h2>Upload and inspect</h2></div><span className="tag">CSV / XLSX • 25 MB</span></div><input ref={input} type="file" accept=".csv,.xlsx" hidden onChange={(event:{target:HTMLInputElement})=>setFile(event.target.files?.[0]??null)}/><button onClick={()=>input.current?.click()} className="drop">{file?<><b>{file.name}</b><span>{(file.size/1024).toFixed(1)} KB selected</span></>:<><b>Choose CSV or XLSX</b><span>Files are validated before storage</span></>}</button><div className="actions"><button onClick={upload} disabled={!file||busy}>{busy?"Working…":"Upload dataset"}</button>{file&&<button className="secondary" onClick={clear}>Clear</button>}</div>{message&&<div className="error">{message}</div>}</div></section>
+ {dataset&&<section className="result"><div className="resultHead"><div><div className="eyebrow">DATASET REGISTERED</div><h2>{dataset.name}</h2><p>{dataset.rows} rows • {dataset.columns} columns • SHA-256 {dataset.sha256.slice(0,12)}…</p></div><label>Binary target<select value={dataset.target_column??""} onChange={(event:{target:HTMLSelectElement})=>target(event.target.value)}><option value="">Select target</option>{columns.map(column=><option key={column}>{column}</option>)}</select></label></div><div className="metrics"><Metric label="Samples" value={dataset.rows}/><Metric label="Features" value={dataset.columns}/><Metric label="Missing" value={dataset.total_missing_values}/><Metric label="Duplicates" value={dataset.duplicate_rows}/></div>{dataset.warnings.map(warning=><div className="warning" key={warning}>{warning}</div>)}{preview&&<div className="tableWrap"><table><thead><tr>{preview.columns.map(column=><th key={column}>{column}</th>)}</tr></thead><tbody>{preview.rows.slice(0,5).map((row,index)=><tr key={index}>{preview.columns.map(column=><td key={column}>{row[column]===null?"—":String(row[column])}</td>)}</tr>)}</tbody></table></div>}</section>}
+ {dataset?.target_column&&<section className="preprocess"><div className="panelHead"><div><div className="eyebrow">PIPELINE CONFIGURATION</div><h2>Training-fitted transformations</h2></div><span className="tag safe">Split before fit</span></div><div className="configGrid"><Select label="Missing numerical" value={config.numerical_missing} options={[["median","Median"],["mean","Mean"]]} change={value=>setConfig({...config,numerical_missing:value as "median"|"mean"})}/><Select label="Duplicates" value={config.duplicate_mode} options={[["remove","Remove exact"],["keep","Keep and report"]]} change={value=>setConfig({...config,duplicate_mode:value as "remove"|"keep"})}/><Select label="Categorical encoding" value={config.categorical_encoding} options={[["one_hot","One-hot"],["ordinal","Ordinal"]]} change={value=>setConfig({...config,categorical_encoding:value as "one_hot"|"ordinal"})}/><Select label="Scaling" value={config.scaling} options={[["standard","StandardScaler"],["minmax","MinMaxScaler"]]} change={value=>setConfig({...config,scaling:value as "standard"|"minmax"})}/><Select label="Outlier mode" value={config.outlier_mode} options={[["keep","Keep"],["clip","Clip"],["remove","Remove from train"]]} change={value=>setConfig({...config,outlier_mode:value as "keep"|"clip"|"remove",outlier_method:value==="keep"?null:(config.outlier_method??"iqr")})}/><Select label="Outlier method" value={config.outlier_method??"none"} disabled={config.outlier_mode==="keep"} options={[["none","Not applied"],["iqr","IQR"],["zscore","Z-score"]]} change={value=>setConfig({...config,outlier_method:value==="none"?null:value as "iqr"|"zscore"})}/><label>Test size<input type="number" min="0.1" max="0.4" step="0.05" value={config.test_size} onChange={(event:{target:HTMLInputElement})=>setConfig({...config,test_size:Number(event.target.value)})}/></label><label>Random seed<input type="number" value={config.random_seed} onChange={(event:{target:HTMLInputElement})=>setConfig({...config,random_seed:Number(event.target.value)})}/></label></div><div className="fitRule"><b>Leakage control</b><span>Stratified split → fit bounds, imputers, encoders and scaler on train only → transform held-out test.</span></div><button onClick={preprocess} disabled={busy}>{busy?"Running…":"Run preprocessing"}</button></section>}
+ {run&&<section className="runResult"><div><div className="eyebrow">RUN COMPLETED</div><h2>Preprocessing artifact created</h2><p>Run {run.id.slice(0,8)} • fitted on <b>{run.fitted_on.replace("_"," ")}</b></p></div><div className="metrics"><Metric label="Train rows" value={run.train_rows}/><Metric label="Test rows" value={run.test_rows}/><Metric label="Output features" value={run.output_features}/><Metric label="Duplicates removed" value={run.duplicates_removed}/></div><div className="split"><span>Input dimensions: {run.input_features}</span><b>→</b><span>Encoded dimensions: {run.output_features}</span></div></section>}
+ <section className="panel"><div className="panelHead"><div><div className="eyebrow">RESEARCH WORKFLOW</div><h2>One defensible path from data to evidence</h2></div><span className="tag">Simulator-first</span></div><div className="flow">{stages.map((stage,index)=><div className={`step ${index<=active?"active":""}`} key={stage}><span>{String(index+1).padStart(2,"0")}</span><b>{stage}</b></div>)}</div></section><section className="notice"><b>Research use only.</b> This platform is a research and decision-support prototype. Predictions are not a substitute for professional medical diagnosis or clinical validation.</section>
+ </main><footer>EntangleX Q-Health • Training-only fitting • No assumed quantum advantage</footer></div>
 }
-
-function Metric({ label, value }: { label: string; value: string | number }) { return <div><span>{label}</span><b>{value}</b></div>; }
-createRoot(document.getElementById("root")!).render(<App />);
+function Metric({label,value}:{label:string;value:string|number}){return <div><span>{label}</span><b>{value}</b></div>}
+function Select({label,value,options,change,disabled=false}:{label:string;value:string;options:string[][];change:(value:string)=>void;disabled?:boolean}){return <label>{label}<select value={value} disabled={disabled} onChange={(event:{target:HTMLSelectElement})=>change(event.target.value)}>{options.map(([key,text])=><option value={key} key={key}>{text}</option>)}</select></label>}
+createRoot(document.getElementById("root")!).render(<App/>);
