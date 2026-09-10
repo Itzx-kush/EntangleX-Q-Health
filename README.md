@@ -4,7 +4,7 @@ A modular hybrid quantum-classical machine learning platform for biomedical dise
 
 ## Current phase
 
-Phase 2 implements real CSV/XLSX ingestion and validation: bounded uploads, safe storage names, deterministic dataset hashes, schema and quality summaries, target selection, binary class analysis, bounded previews, SQLite registration, structured API errors, and a functional React upload interface. It does not preprocess, train, predict, or fabricate metrics.
+Phase 3 adds leakage-safe configurable preprocessing: stratified splitting, train-only fitted imputation, categorical encoding, outlier bounds, scaling, duplicate handling, persisted pipeline artifacts, run metadata, APIs, and a functional configuration interface. It does not perform feature selection, PCA, model training, prediction, or fabricate metrics.
 
 ## Local setup
 
@@ -25,16 +25,16 @@ npm install
 npm test
 npm run typecheck
 npm run build
-python -m http.server 5173 -d dist
+npm run dev
 ```
 
 Open `http://localhost:5173`; API docs are at `http://127.0.0.1:8000/docs`.
 
-## Phase 2 workflow
+## Phase 3 workflow
 
-Upload CSV/XLSX → validate file → parse table → inspect schema/quality → hash and register → select target → validate binary classes → preview safely.
+Upload and validate → select binary target → remove exact duplicates if configured → stratified split → fit outlier policy and scikit-learn transformations on training data only → transform held-out test → persist the fitted bundle and run metadata.
 
-See `docs/phase-2-report.md` for contracts, validation policy, security notes, and tests.
+See `docs/phase-3-report.md` for leakage controls and supported configuration.
 
 ## Planned architecture
 
@@ -42,4 +42,4 @@ React UI → FastAPI API → domain services → data/ML/QML engines → evaluat
 
 ## Limitations
 
-Phase 2 performs no imputation, scaling, encoding, feature selection, PCA, model training, explainability, or prediction. Quantum simulation is not physical quantum hardware. Future QML may perform better, similarly, or worse than classical baselines; results will not constitute clinical validation.
+Phase 3 performs no feature selection, PCA, SMOTE, model training, explainability, prediction, or quantum execution. Quantum simulation is not physical quantum hardware. Future QML may perform better, similarly, or worse than classical baselines; results will not constitute clinical validation.
