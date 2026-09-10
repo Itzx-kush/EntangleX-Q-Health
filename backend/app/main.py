@@ -9,6 +9,7 @@ from app.api.health import router as health_router
 from app.api.models import router as model_router
 from app.api.preprocessing import router as preprocessing_router
 from app.api.quantum import router as quantum_router
+from app.api.qml import router as qml_router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.data.errors import DatasetError
@@ -20,7 +21,7 @@ configure_logging();logger=logging.getLogger(__name__)
 def create_app()->FastAPI:
  app=FastAPI(title=settings.app_name,version=settings.app_version,description='Research and decision-support platform for reproducible hybrid quantum-classical biomedical ML.')
  app.add_middleware(CORSMiddleware,allow_origins=list(settings.cors_origins),allow_credentials=False,allow_methods=['GET','POST'],allow_headers=['*'])
- for router in(health_router,dataset_router,preprocessing_router,model_router,evaluation_router,quantum_router):app.include_router(router)
+ for router in(health_router,dataset_router,preprocessing_router,model_router,evaluation_router,quantum_router,qml_router):app.include_router(router)
  app.include_router(health_router,prefix='/api/v1')
  def body(exc):return{'error':exc.code,'message':exc.message,'details':exc.details}
  @app.exception_handler(DatasetError)
