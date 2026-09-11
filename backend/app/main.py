@@ -37,7 +37,7 @@ platform_audit = PlatformGovernanceService()
 
 def create_app() -> FastAPI:
     app = FastAPI(title=settings.app_name, version=settings.app_version, description="Research and decision-support platform for reproducible hybrid quantum-classical biomedical ML.")
-    app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_credentials=False, allow_methods=["GET", "POST", "DELETE"], allow_headers=["*"])
+    app.add_middleware(CORSMiddleware, allow_origins=list(settings.cors_origins), allow_origin_regex=settings.cors_origin_regex, allow_credentials=False, allow_methods=["GET", "POST", "DELETE", "OPTIONS"], allow_headers=["*"])
     app.include_router(health_router)
     app.include_router(health_router, prefix="/api/v1")
     app.include_router(dataset_router)
