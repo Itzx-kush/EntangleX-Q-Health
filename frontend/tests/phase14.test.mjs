@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import fs from 'node:fs';
+const component=fs.readFileSync(new URL('../src/components/Phase14Benchmarking.tsx',import.meta.url),'utf8');const api=fs.readFileSync(new URL('../src/services/api.ts',import.meta.url),'utf8');const types=fs.readFileSync(new URL('../src/types/benchmark.ts',import.meta.url),'utf8');
+test('phase fourteen exposes evidence-only benchmarking workspace',()=>{assert.match(component,/stratified/);assert.match(component,/fold_results/);assert.match(component,/confidence|Computing/);assert.match(component,/no synthetic metrics/i);assert.match(api,/api\/benchmarks/);assert.match(types,/BenchmarkCreateRequest/)});
