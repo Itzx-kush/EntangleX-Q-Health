@@ -45,7 +45,7 @@ def create_app()->FastAPI:
     @app.exception_handler(ExperimentError)
     async def experiment_error(_:Request,exc:ExperimentError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.code,"message":exc.message,"details":exc.details})
     @app.exception_handler(BenchmarkError)
-    async def benchmark_error(_:Request,exc:BenchmarkError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":"BENCHMARK_ERROR","message":exc.message,"details":exc.details})
+    async def benchmark_error(_:Request,exc:BenchmarkError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.status_code, "message":exc.message,"details":exc.details})
     @app.exception_handler(Exception)
     async def unhandled_error(_:Request,exc:Exception)->JSONResponse:
         logger.exception("Unhandled API error")
