@@ -3,7 +3,6 @@ from dataclasses import dataclass
 import os
 from pathlib import Path
 
-
 def _bool(name: str, default: bool = False) -> bool:
     return os.getenv(name, str(default)).lower() in {"1", "true", "yes", "on"}
 
@@ -13,7 +12,7 @@ class Settings:
     app_env: str = os.getenv("APP_ENV", "development")
     app_version: str = os.getenv("APP_VERSION", "0.1.0")
     database_url: str = os.getenv("DATABASE_URL", "sqlite:///./entanglex.db")
-    cors_origins: tuple[str, ...] = tuple(x.strip() for x in os.getenv("CORS_ORIGINS", "http://localhost:5173").split(",") if x.strip())
+    cors_origins: tuple[str, ...] = tuple(x.strip() for x in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if x.strip())
     upload_dir: Path = Path(os.getenv("UPLOAD_DIR", "./data/uploads"))
     model_dir: Path = Path(os.getenv("MODEL_DIR", "./models"))
     experiment_dir: Path = Path(os.getenv("EXPERIMENT_DIR", "./experiments"))
