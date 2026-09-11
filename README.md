@@ -4,7 +4,7 @@ A modular hybrid quantum-classical machine learning platform for biomedical dise
 
 ## Current phase
 
-**Phase 11 — Quantum model suite — Certified and merged.** The platform now includes leakage-safe biomedical preprocessing, classical baselines and held-out evaluation, simulator-first quantum runtime diagnostics, real quantum feature encoding, VQC, QSVM and hybrid QNN models, plus bounded classification/regression task support. Phase 11 was merged into `main` and locally certified with the Python 3.12 project environment: **43 backend tests passed in 1.729s (`OK`)**.
+**Phase 12 — Biomedical modality adapters & training orchestration — Implemented and merged.** The platform includes leakage-safe biomedical preprocessing, classical baselines and held-out evaluation, simulator-first quantum runtime diagnostics, real quantum feature encoding, VQC, QSVM and hybrid QNN models, plus Phase 12 persistent training-job orchestration and SIH-aligned EHR, genomics and medical-imaging representation validation. Phase 12 adds a common control-plane API without replacing the certified Phase 1–11 contracts.
 
 ## Local setup
 
@@ -40,9 +40,9 @@ Open `http://localhost:5173`; API docs are at `http://127.0.0.1:8000/docs`.
 
 ## Current workflow
 
-Upload and validate → select classification or regression target → apply leakage-safe preprocessing and feature reduction → train classical baselines → evaluate on held-out data → run simulator-first quantum diagnostics → encode features with a real quantum circuit → train VQC, QSVM and/or QNN → preserve dataset, preprocessing, encoding and model lineage in persisted artifacts.
+Upload and validate → select classification or regression target → apply leakage-safe preprocessing and feature reduction → train classical baselines → evaluate on held-out data → run simulator-first quantum diagnostics → encode features with a real quantum circuit → train VQC, QSVM and/or QNN → orchestrate reproducible training jobs → validate biomedical modality representations → preserve dataset, preprocessing, encoding and model lineage in persisted artifacts.
 
-See `docs/sih26139-master-roadmap.md` for the authoritative roadmap and `docs/phase-11-qsvm-qnn-model-suite.md` for the Phase 11 implementation and certification record.
+See `docs/sih26139-master-roadmap.md`, `docs/sih26139-pdf-deliverable-alignment.md`, and `docs/phase-12-biomedical-orchestration.md` for the authoritative roadmap, SIH alignment, and Phase 12 implementation record.
 
 ## Planned architecture
 
