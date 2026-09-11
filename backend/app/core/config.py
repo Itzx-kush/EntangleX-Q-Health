@@ -13,6 +13,7 @@ class Settings:
     app_version: str = os.getenv("APP_VERSION", "0.1.0")
     database_url: str = os.getenv("DATABASE_URL", "sqlite:///./entanglex.db")
     cors_origins: tuple[str, ...] = tuple(x.strip() for x in os.getenv("CORS_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",") if x.strip())
+    cors_origin_regex: str = os.getenv("CORS_ORIGIN_REGEX", r"^https?://(?:localhost|127\\.0\\.0\\.1|192\\.168\\.\\d{1,3}\\.\\d{1,3}|10\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}|172\\.(?:1[6-9]|2\\d|3[0-1])\\.\\d{1,3}\\.\\d{1,3}):5173$")
     upload_dir: Path = Path(os.getenv("UPLOAD_DIR", "./data/uploads"))
     model_dir: Path = Path(os.getenv("MODEL_DIR", "./models"))
     experiment_dir: Path = Path(os.getenv("EXPERIMENT_DIR", "./experiments"))
