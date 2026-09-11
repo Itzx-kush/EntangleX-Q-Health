@@ -14,3 +14,24 @@ export const PRODUCT = Object.freeze({
 });
 
 (globalThis as { ENTANGLEX_PROJECT_PROGRESS?: typeof PROJECT_PROGRESS }).ENTANGLEX_PROJECT_PROGRESS = PROJECT_PROGRESS;
+
+if (typeof document !== "undefined") {
+  const syncLegacyLabels = () => {
+    document.querySelectorAll<HTMLElement>(".phase b").forEach((node) => {
+      if (node.textContent !== PROJECT_PROGRESS.label) node.textContent = PROJECT_PROGRESS.label;
+    });
+    document.querySelectorAll<HTMLElement>(".phase small").forEach((node) => {
+      if (node.textContent !== PROJECT_PROGRESS.workstream) node.textContent = PROJECT_PROGRESS.workstream;
+    });
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node: Node | null;
+    while ((node = walker.nextNode())) {
+      const text = node.nodeValue ?? "";
+      const normalized = text.replaceAll("Phase 18 of 20", PROJECT_PROGRESS.label).replaceAll("18 / 20", PROJECT_PROGRESS.shortLabel);
+      if (normalized !== text) node.nodeValue = normalized;
+    }
+  };
+  const observer = new MutationObserver(syncLegacyLabels);
+  observer.observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+  queueMicrotask(syncLegacyLabels);
+}
