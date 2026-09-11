@@ -1,7 +1,14 @@
 # Phase 11 — QSVM, QNN and Quantum Model Suite
 
 ## Status
-Implementation complete on `phase-11-qsvm-qnn-model-suite`; merge remains blocked pending local Python 3.12/Qiskit certification and explicit owner approval.
+**Certified and merged.** Phase 11 is merged into `main` and was locally certified on Windows with the repository Python 3.12 virtual environment and Qiskit runtime.
+
+## Certification evidence
+- Command: `..\\.venv\\Scripts\\python.exe -m unittest discover -s tests -v`
+- Result: **43 tests passed in 1.729s (`OK`)**
+- Certification environment: project `.venv` using Python 3.12
+- Quantum execution tests ran successfully with the installed Qiskit/Qiskit Aer environment.
+- The observed Starlette/httpx, scikit-learn and Qiskit deprecation/future warnings did not affect test success.
 
 ## Implemented
 - Shared `classification | regression` task contract from target validation through preprocessing, encoding, training, persistence and UI.
@@ -12,7 +19,7 @@ Implementation complete on `phase-11-qsvm-qnn-model-suite`; merge remains blocke
 - QNN uses an actual parameterized quantum circuit, per-qubit expectation features and a jointly optimized classical linear head.
 - QNN classification uses sigmoid/binary cross-entropy and binary held-out metrics.
 - QNN regression normalizes only the training target, optimizes MSE, inverse-transforms predictions and reports MAE, MSE, RMSE and R².
-- VQC now supports COBYLA and Nelder–Mead, configurable tolerance, best loss, convergence state and termination metadata.
+- VQC supports COBYLA and Nelder–Mead, configurable tolerance, best loss, convergence state and termination metadata.
 - All new runs persist configuration, seed, lineage identifiers, sample counts, circuit resources, duration, metrics and artifacts.
 - Duplicate dataset uploads reuse the existing SHA-256 record.
 - Phase 10 UI structure, theme behavior, responsiveness and scroll stability are preserved; Quantum Lab is extended with QSVM/QNN controls and real result panels.
@@ -38,15 +45,14 @@ Implementation complete on `phase-11-qsvm-qnn-model-suite`; merge remains blocke
 - Frontend source/regression tests pass.
 - Strict TypeScript and production build pass.
 - Fixed-output and embedded-credential scans pass.
-- Qiskit/scikit-learn integration tests are executable but may skip in environments missing required dependencies.
+- Full local Python 3.12 backend certification passes: 43/43 tests, `OK`.
 
-## Required local certification
-Use Python 3.12 in the repository virtual environment:
-
+## Required certification command
 ```powershell
 cd D:\EntangleX-Q-Health\backend
 $env:PYTHONPATH = "."
 & ..\.venv\Scripts\python.exe -m unittest discover -s tests -v
 ```
 
-Do not claim model superiority or clinical validity. Metrics are valid only for their recorded dataset split and configuration.
+## Scientific boundary
+Do not claim model superiority or clinical validity. Metrics are valid only for their recorded dataset split and configuration. Quantum simulation is not physical quantum hardware, and no quantum-advantage claim is implied by implementation alone.
