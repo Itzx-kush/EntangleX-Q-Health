@@ -30,7 +30,7 @@ class TrainingJobRequest(BaseModel):
     dataset_id: str | None = None
     preprocessing_run_id: str | None = None
     encoding_run_id: str | None = None
-    model_config: dict[str, Any] = Field(default_factory=dict)
+    model_parameters: dict[str, Any] = Field(default_factory=dict)
     seed: int = 42
     parent_job_id: str | None = None
 
