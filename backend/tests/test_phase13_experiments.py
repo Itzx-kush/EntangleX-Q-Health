@@ -66,6 +66,28 @@ def test_clone_is_immutable_and_preserves_parent_lineage(tmp_path: Path):
     assert registry.get(source["id"])["configuration"]["regularization_c"] == 1.0
 
 
+def test_delete_removes_leaf_experiment(tmp_path: Path):
+    registry = build_registry(tmp_path)
+    experiment = registry.register(make_request())
+
+    registry.delete(experiment["id"])
+
+    with pytest.raises(ExperimentError) as error:
+        registry.get(experiment["id"])
+    assert error.value.code == "EXPERIMENT_NOT_FOUND"
+
+
+def test_delete_preserves_parent_lineage_safety(tmp_path: Path):
+    registry = build_registry(tmp_path)
+    source = registry.register(make_request())
+    registry.clone(source["id"], CloneExperimentRequest())
+
+    with pytest.raises(ExperimentError) as error:
+        registry.delete(source["id"])
+    assert error.value.code == "EXPERIMENT_HAS_CHILDREN"
+    assert registry.get(source["id"])["id"] == source["id"]
+
+
 def test_tampered_artifact_blocks_clone(tmp_path: Path):
     artifact = tmp_path / "model.joblib"
     artifact.write_bytes(b"original")
