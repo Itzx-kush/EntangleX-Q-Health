@@ -106,6 +106,13 @@ class ExperimentRegistry:
     def list(self, **filters: str | None) -> list[dict[str, Any]]:
         return [self._with_integrity(record) for record in self.repository.list(**filters)]
 
+    def delete(self, experiment_id: str) -> None:
+        self._require_raw(experiment_id)
+        children = [record for record in self.repository.list() if record.get("parent_experiment_id") == experiment_id]
+        if children:
+            raise ExperimentError("EXPERIMENT_HAS_CHILDREN", "Delete child experiments before deleting their parent lineage record.", {"experiment_id": experiment_id, "children": [record["id"] for record in children]}, 409)
+        self.repository.delete(experiment_id)
+
     def clone(self, experiment_id: str, request: CloneExperimentRequest) -> dict[str, Any]:
         source = self.repository.get(experiment_id)
         if not source:

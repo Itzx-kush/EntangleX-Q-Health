@@ -82,6 +82,11 @@ class ExperimentRepository:
             row = connection.execute("SELECT * FROM experiments WHERE id=?", (experiment_id,)).fetchone()
             return self._decode(row) if row else None
 
+    def delete(self, experiment_id: str) -> None:
+        with closing(self.connect()) as connection:
+            connection.execute("DELETE FROM experiments WHERE id=?", (experiment_id,))
+            connection.commit()
+
     def list(
         self,
         search: str | None = None,

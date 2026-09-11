@@ -28,7 +28,7 @@ configure_logging(); logger=logging.getLogger(__name__)
 
 def create_app()->FastAPI:
     app=FastAPI(title=settings.app_name,version=settings.app_version,description="Research and decision-support platform for reproducible hybrid quantum-classical biomedical ML.")
-    app.add_middleware(CORSMiddleware,allow_origins=list(settings.cors_origins),allow_credentials=False,allow_methods=["GET","POST"],allow_headers=["*"])
+    app.add_middleware(CORSMiddleware,allow_origins=list(settings.cors_origins),allow_credentials=False,allow_methods=["GET","POST","DELETE"],allow_headers=["*"])
     app.include_router(health_router); app.include_router(health_router,prefix="/api/v1"); app.include_router(dataset_router); app.include_router(preprocessing_router); app.include_router(model_router); app.include_router(evaluation_router); app.include_router(quantum_router); app.include_router(qml_router); app.include_router(orchestration_router); app.include_router(experiment_router); app.include_router(benchmark_router)
     @app.exception_handler(DatasetError)
     async def dataset_error(_:Request,exc:DatasetError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.code,"message":exc.message,"details":exc.details})

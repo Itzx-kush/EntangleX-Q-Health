@@ -62,6 +62,12 @@ def get_experiment(experiment_id: str, registry: ExperimentRegistry = Depends(ge
     return _response(registry.get(experiment_id))
 
 
+@router.delete("/{experiment_id}", status_code=204)
+def delete_experiment(experiment_id: str, registry: ExperimentRegistry = Depends(get_registry)):
+    registry.delete(experiment_id)
+    return Response(status_code=204)
+
+
 @router.post("/{experiment_id}/clone", response_model=ExperimentResponse, status_code=201)
 def clone_experiment(experiment_id: str, payload: CloneExperimentRequest, registry: ExperimentRegistry = Depends(get_registry)):
     return _response(registry.clone(experiment_id, payload))
