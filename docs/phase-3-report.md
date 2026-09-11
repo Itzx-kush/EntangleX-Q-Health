@@ -20,7 +20,7 @@ Exact duplicate removal is deterministic and occurs before splitting. The target
 
 ## Persistence
 
-Each successful run receives an ID. Configuration and summary metadata are stored in SQLite. The fitted scikit-learn pipeline, training-fitted outlier policy, label encoder, input columns, and output feature names are saved together as an internally generated joblib artifact. API responses expose only a relative artifact reference, not a local filesystem path.
+Each successful run receives an ID. Configuration and summary metadata are stored in SQLite. The fitted scikit-learn pipeline, training-fitted outlier policy, label encoder, input columns, and output feature names are saved together as an internally generated joblib artifact.
 
 ## Deferred
 

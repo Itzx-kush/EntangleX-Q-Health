@@ -1,5 +1,7 @@
 from __future__ import annotations
 import hashlib
+import json
+import math
 import uuid
 from datetime import datetime, timezone
 from pathlib import Path
@@ -24,9 +26,7 @@ class DatasetService:
         digest=hashlib.sha256(content).hexdigest()
         existing=self.repository.find_by_hash(digest)
         if existing:
-            summary=self._summary(existing)
-            summary["warnings"]=[*summary["warnings"],"Identical dataset already registered; the existing record was reused."]
-            return summary
+            return self._summary(existing)
         frame=load_dataframe(content,extension)
         warnings=validate_frame(frame)
         profile=profile_frame(frame)
@@ -45,11 +45,11 @@ class DatasetService:
         record=self.repository.get(dataset_id)
         if not record: raise DatasetError("DATASET_NOT_FOUND","Dataset was not found.",dataset_id,404)
         return self._summary(record)
-    def select_target(self,dataset_id:str,target_column:str) -> dict:
+    def select_target(self,dataset_id:str,target_column:str,task_type:str="classification") -> dict:
         record=self.repository.get(dataset_id)
         if not record: raise DatasetError("DATASET_NOT_FOUND","Dataset was not found.",dataset_id,404)
         frame=load_dataframe_path(self.upload_dir/record["stored_filename"])
-        target=analyze_target(frame,target_column); target_warnings=target.pop("warnings")
+        target=analyze_target(frame,target_column,task_type); target_warnings=target.pop("warnings")
         warnings=[item for item in record["warnings"] if not item.startswith("Target is highly imbalanced")]+target_warnings
         self.repository.update_target(dataset_id,target_column,target,warnings)
         return self.get(dataset_id)
@@ -71,5 +71,5 @@ class DatasetService:
         result={key:record[key] for key in ("id","name","original_filename","extension","size_bytes","sha256","target_column","created_at")}
         result.update(record["profile"]); result["warnings"]=record.get("warnings",[])
         target=record.get("target") or {}
-        result.update({"class_distribution":target.get("class_distribution"),"class_proportions":target.get("class_proportions"),"class_count":target.get("class_count"),"imbalance_ratio":target.get("imbalance_ratio")})
+        result.update({"class_distribution":target.get("class_distribution"),"class_proportions":target.get("class_proportions"),"class_count":target.get("class_count"),"imbalance_ratio":target.get("imbalance_ratio"),"task_type":target.get("task_type","classification"),"target_min":target.get("target_min"),"target_max":target.get("target_max"),"target_mean":target.get("target_mean"),"target_std":target.get("target_std")})
         return result

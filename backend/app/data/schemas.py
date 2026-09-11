@@ -1,6 +1,6 @@
 from __future__ import annotations
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from pydantic import BaseModel, Field
 
 class DatasetSummary(BaseModel):
@@ -23,6 +23,11 @@ class DatasetSummary(BaseModel):
     class_proportions: dict[str, float] | None = None
     class_count: int | None = None
     imbalance_ratio: float | None = None
+    task_type: Literal["classification", "regression"] = "classification"
+    target_min: float | None = None
+    target_max: float | None = None
+    target_mean: float | None = None
+    target_std: float | None = None
     warnings: list[str] = Field(default_factory=list)
     created_at: datetime
 
@@ -32,6 +37,7 @@ class DatasetList(BaseModel):
 
 class TargetSelectionRequest(BaseModel):
     target_column: str = Field(min_length=1, max_length=255)
+    task_type: Literal["classification", "regression"] = "classification"
 
 class PreviewRequest(BaseModel):
     offset: int = Field(default=0, ge=0)

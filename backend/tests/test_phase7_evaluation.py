@@ -5,7 +5,8 @@ SKLEARN=importlib.util.find_spec('sklearn') is not None
 class EvaluationMetricTests(unittest.TestCase):
  def test_binary_metrics_match_confusion_matrix(self):
   from app.evaluation.metrics import evaluate_binary
-  r=evaluate_binary(np.array([0,0,1,1]),np.array([0,1,1,1]),np.array([.1,.8,.7,.9]));self.assertEqual((r['true_negative'],r['false_positive'],r['false_negative'],r['true_positive']),(1,1,0,2));self.assertAlmostEqual(r['sensitivity'],1);self.assertAlmostEqual(r['specificity'],.5);self.assertAlmostEqual(r['accuracy'],.75);self.assertIsNotNone(r['roc_auc'])
+  result=evaluate_binary(np.array([0,0,1,1]),np.array([0,1,1,1]),np.array([.1,.8,.7,.9]));self.assertEqual((result['true_negative'],result['false_positive'],result['false_negative'],result['true_positive']),(1,1,0,2));self.assertAlmostEqual(result['sensitivity'],1);self.assertAlmostEqual(result['specificity'],.5);self.assertAlmostEqual(result['accuracy'],.75);self.assertIsNotNone(result['roc_auc'])
  def test_undefined_precision_is_zero(self):
   from app.evaluation.metrics import evaluate_binary
-  r=evaluate_binary(np.array([0,1]),np.array([0,0]));self.assertEqual(r['precision'],0);self.assertEqual(r['f1'],0)
+  result=evaluate_binary(np.array([0,1]),np.array([0,0]));self.assertEqual(result['precision'],0);self.assertEqual(result['f1'],0)
+if __name__=='__main__':unittest.main()

@@ -10,8 +10,8 @@ class EvaluationRepository:
  def create(self,r):
   with closing(self.connect()) as c:c.execute('INSERT INTO evaluation_runs VALUES(?,?,?,?,?,?,?,?,?)',(r['id'],r['model_run_id'],r['preprocessing_run_id'],r['dataset_id'],r['model_type'],r['status'],json.dumps(r['metrics']),r['artifact_path'],r['created_at']));c.commit()
  def get(self,i):
-  with closing(self.connect()) as c:x=c.execute('SELECT * FROM evaluation_runs WHERE id=?',(i,)).fetchone();return self._d(x) if x else None
- def list(self,m=None):
-  with closing(self.connect()) as c:rows=c.execute('SELECT * FROM evaluation_runs WHERE model_run_id=?',(m,)).fetchall() if m else c.execute('SELECT * FROM evaluation_runs').fetchall();return[self._d(x) for x in rows]
+  with closing(self.connect()) as c:x=c.execute('SELECT * FROM evaluation_runs WHERE id=?',(i,)).fetchone();return self._decode(x) if x else None
+ def list(self,model_run_id=None):
+  with closing(self.connect()) as c:rows=c.execute('SELECT * FROM evaluation_runs WHERE model_run_id=? ORDER BY created_at DESC',(model_run_id,)).fetchall() if model_run_id else c.execute('SELECT * FROM evaluation_runs ORDER BY created_at DESC').fetchall();return[self._decode(x) for x in rows]
  @staticmethod
- def _d(x):r=dict(x);r['metrics']=json.loads(r.pop('metrics_json'));return r
+ def _decode(x):r=dict(x);r['metrics']=json.loads(r.pop('metrics_json'));return r
