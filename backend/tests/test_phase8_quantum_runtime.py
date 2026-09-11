@@ -15,4 +15,4 @@ class QuantumExecutionTests(unittest.TestCase):
   from app.quantum.service import QuantumRuntimeService
   class Runs:
    def create(self,r):self.value=r
-  r=QuantumRuntimeService(runs=Runs(),artifact_dir=Path(tempfile.mkdtemp())).run_diagnostic(QuantumDiagnosticRequest(qubits=2,shots=128,seed=7));self.assertEqual(sum(r['measurement_counts'].values()),128);self.assertGreater(r['circuit_depth'],0)
+  service=QuantumRuntimeService(runs=Runs(),artifact_dir=Path(tempfile.mkdtemp()));r=service.run_diagnostic(QuantumDiagnosticRequest(qubits=2,shots=128,seed=7));self.assertEqual(sum(r['measurement_counts'].values()),128);self.assertGreater(r['circuit_depth'],0)

@@ -25,7 +25,7 @@ npm install
 npm test
 npm run typecheck
 npm run build
-npm run dev
+python -m http.server 5173 -d dist
 ```
 
 Open `http://localhost:5173`; API docs are at `http://127.0.0.1:8000/docs`.
@@ -42,4 +42,4 @@ React UI → FastAPI API → domain services → data/ML/QML engines → evaluat
 
 ## Limitations
 
-Phase 3 performs no feature selection, PCA, SMOTE, model training, explainability, prediction, or quantum execution. Quantum simulation is not physical quantum hardware. Future QML may perform better, similarly, or worse than classical baselines; results will not constitute clinical validation.
+Phase 2 performs no imputation, scaling, encoding, feature selection, PCA, model training, explainability, or prediction. Quantum simulation is not physical quantum hardware. Future QML may perform better, similarly, or worse than classical baselines; results will not constitute clinical validation.

@@ -1,2 +1,2 @@
 class ModelTrainingError(Exception):
- def __init__(self,code,message,details=None,status_code=400):super().__init__(message);self.code=code;self.message=message;self.details=details;self.status_code=status_code
+    def __init__(self,code:str,message:str,details:str|None=None,status_code:int=400)->None:super().__init__(message);self.code=code;self.message=message;self.details=details;self.status_code=status_code

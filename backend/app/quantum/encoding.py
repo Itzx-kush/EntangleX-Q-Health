@@ -5,6 +5,7 @@ from app.core.config import settings
 from app.preprocessing.repository import PreprocessingRepository
 from app.quantum.errors import QuantumRuntimeError
 from app.quantum.qml_repository import QMLRepository
+
 class QuantumEncodingService:
  def __init__(self,preprocessing=None,runs=None,artifact_dir=None):self.preprocessing=preprocessing or PreprocessingRepository();self.runs=runs or QMLRepository();self.artifact_dir=artifact_dir or settings.model_dir/'quantum_encoding';self.artifact_dir.mkdir(parents=True,exist_ok=True)
  @staticmethod
@@ -35,11 +36,12 @@ class QuantumEncodingService:
    compiled=transpile(self.circuit(encoded_train[0],c.entanglement),AerSimulator(),optimization_level=1,seed_transpiler=c.seed)
   except ImportError as exc:raise QuantumRuntimeError('QUANTUM_SIMULATOR_UNAVAILABLE','Install Qiskit and Qiskit Aer before encoding.') from exc
   i=str(uuid.uuid4());artifact=self.artifact_dir/f'{i}.npz';np.savez_compressed(artifact,train_features=encoded_train,test_features=encoded_test,train_labels=np.asarray(b['training_labels']),test_labels=np.asarray(b['test_labels']),feature_min=low,feature_max=high)
-  summary={'feature_names':names,'train_rows':len(train),'test_rows':len(test),'angle_min':float(encoded_train.min()),'angle_max':float(encoded_train.max()),'circuit_depth':int(compiled.depth()),'circuit_size':int(compiled.size()),'operation_counts':{str(k):int(v) for k,v in compiled.count_ops().items()}}
+  task_type=str(b.get('task_type',b.get('configuration',{}).get('task_type','classification')))
+  summary={'task_type':task_type,'feature_names':names,'train_rows':len(train),'test_rows':len(test),'angle_min':float(encoded_train.min()),'angle_max':float(encoded_train.max()),'circuit_depth':int(compiled.depth()),'circuit_size':int(compiled.size()),'operation_counts':{str(k):int(v) for k,v in compiled.count_ops().items()}}
   record={'id':i,'preprocessing_run_id':c.preprocessing_run_id,'dataset_id':r['dataset_id'],'configuration':c.model_dump(),'summary':summary,'artifact_path':f'quantum_encoding/{i}.npz','created_at':datetime.now(timezone.utc).isoformat()};self.runs.create_encoding(record);return self._response(record)
  def get(self,i):
   r=self.runs.get_encoding(i)
   if not r:raise QuantumRuntimeError('ENCODING_RUN_NOT_FOUND','Quantum encoding run was not found.',i,404)
   return self._response(r)
  @staticmethod
- def _response(r):return{'id':r['id'],'preprocessing_run_id':r['preprocessing_run_id'],'dataset_id':r['dataset_id'],**r['configuration'],**r['summary'],'artifact_path':r['artifact_path'],'created_at':r['created_at']}
+ def _response(r):return{'id':r['id'],'preprocessing_run_id':r['preprocessing_run_id'],'dataset_id':r['dataset_id'],**r['configuration'],**r['summary'],'task_type':r['summary'].get('task_type','classification'),'artifact_path':r['artifact_path'],'created_at':r['created_at']}

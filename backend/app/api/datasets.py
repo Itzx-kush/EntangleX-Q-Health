@@ -38,7 +38,7 @@ def get_dataset(dataset_id:str,service:DatasetService=Depends(get_dataset_servic
 
 @router.post("/{dataset_id}/target",response_model=DatasetSummary)
 def select_target(dataset_id:str,payload:TargetSelectionRequest,service:DatasetService=Depends(get_dataset_service)):
-    return service.select_target(dataset_id,payload.target_column)
+    return service.select_target(dataset_id,payload.target_column,payload.task_type)
 
 @router.post("/{dataset_id}/preview",response_model=DatasetPreview)
 def preview_dataset(dataset_id:str,payload:PreviewRequest,service:DatasetService=Depends(get_dataset_service)):
