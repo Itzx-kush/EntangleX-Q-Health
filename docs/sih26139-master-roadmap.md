@@ -10,7 +10,7 @@
 
 The required product is a functional research platform—not a static demonstration—that accepts biomedical data, performs leakage-safe classical preparation, trains classical and quantum-enhanced models, supports prediction and explainability, and benchmarks both tracks for predictive performance, computational efficiency, and generalization. It must remain executable on simulators while providing a controlled route to near-term hardware.
 
-## Delivery status through Phase 10
+## Delivery status through Phase 11
 
 | Phase | Scope | Delivered outcome | Status |
 |---|---|---|---|
@@ -22,8 +22,21 @@ The required product is a functional research platform—not a static demonstrat
 | 6 | Classical baselines | Logistic Regression, SVM and Random Forest with real configuration, training and model artifacts | Certified |
 | 7 | Classical evaluation | Untouched-test metrics, confusion matrix, sensitivity, specificity, balanced accuracy, F1 and ROC-AUC | Certified |
 | 8 | Quantum runtime and product UI | Simulator-first Qiskit Aer diagnostics, GHZ health circuit, bounded resources, optional IBM capability, persisted runs, initial complete website | Certified |
-| 9 | Quantum feature encoding | Real preprocessing-artifact input, train-only [0, π] angle scaling, Qiskit RY gates, linear/ring entanglement, circuit resources and NPZ artifacts | Implemented; certification pending |
-| 10 | Variational quantum classifier | Statevector VQC, repeated RY ansatz, COBYLA/binary-cross-entropy optimization, held-out evaluation, real loss/metrics/artifacts and polished stable UI | Implemented; certification pending |
+| 9 | Quantum feature encoding | Real preprocessing-artifact input, train-only [0, π] angle scaling, Qiskit RY gates, linear/ring entanglement, circuit resources and NPZ artifacts | Certified |
+| 10 | Variational quantum classifier | Statevector VQC, repeated RY ansatz, COBYLA/binary-cross-entropy optimization, held-out evaluation, real loss/metrics/artifacts and polished stable UI | Certified |
+| 11 | Quantum model suite | Bounded QSVM/fidelity-kernel model, QNN/hybrid neural model, hardened VQC configuration, classification/regression task abstractions, preserved lineage and Phase 11 contract tests | Certified |
+
+## Phase 11 certification evidence
+
+Phase 11 was merged into `main` as pull request #9 at commit `6d34595`. Local certification was then completed on Windows using the repository Python 3.12 virtual environment. The full backend suite passed:
+
+```text
+Ran 43 tests in 1.729s
+
+OK
+```
+
+This certification covers the complete discovered backend test suite, including the Phase 11 QSVM/QNN contract and quantum execution tests. Warnings emitted by third-party dependencies did not cause test failures.
 
 ## Fit against SIH26139
 
@@ -32,37 +45,26 @@ The required product is a functional research platform—not a static demonstrat
 - End-to-end tabular biomedical data ingestion and validation
 - Leakage-safe preprocessing and feature reduction for high-dimensional data
 - Multiple classical baselines
-- Real quantum circuit encoding and a real VQC
+- Real quantum circuit encoding, VQC, QSVM and QNN/hybrid modeling
 - Simulator-first execution with deterministic seeds and resource bounds
-- Accuracy, balanced accuracy, precision, recall, F1, sensitivity, specificity and ROC-AUC
+- Classification and bounded regression task abstractions
+- Accuracy, balanced accuracy, precision, recall, F1, sensitivity, specificity and ROC-AUC where applicable
 - Persisted data/model/QML lineage and reproducibility metadata
 - Professional frontend with real-state outputs and no fabricated metrics
 
 ### Still incomplete or only partially covered
 
-1. **Quantum model breadth:** the statement names QSVM, QNN and VQC examples. VQC exists; at least one quantum-kernel model and one QNN/hybrid model should be added.
-2. **Regression:** current workflow is binary classification. Add task-type abstraction and a bounded regression path where a suitable biomedical target exists.
-3. **Biomedical modality breadth:** tabular CSV/XLSX is complete, but genomics and image workflows require feature/embedding adapters rather than sending raw high-dimensional input to a quantum circuit.
-4. **Inference workflow:** trained models require single-record and batch prediction, validation, confidence/uncertainty and saved inference records.
-5. **Explainability:** classical and quantum explanation modules have not yet been implemented.
-6. **Benchmark rigor:** single-run metrics are insufficient. Add repeated stratified validation, confidence intervals, generalization checks and measured runtime/resource comparisons.
-7. **Hardware compatibility:** runtime capability exists, but controlled real-device transpilation, queues, calibration metadata, noise experiments and execution safeguards remain.
-8. **Scalability and privacy:** add async jobs, artifact lifecycle, access controls, audit logs, PHI-safe defaults and deployment hardening.
-9. **Comprehensive delivery documentation:** architecture, user guide, API guide, model cards, dataset cards, deployment, limitations and SIH demonstration package remain.
+1. **Biomedical modality breadth:** tabular CSV/XLSX is complete, but genomics and image workflows require feature/embedding adapters rather than sending raw high-dimensional input to a quantum circuit.
+2. **Inference workflow:** trained models require single-record and batch prediction, validation, confidence/uncertainty and saved inference records.
+3. **Explainability:** classical and quantum explanation modules have not yet been implemented.
+4. **Benchmark rigor:** single-run metrics are insufficient. Add repeated stratified validation, confidence intervals, generalization checks and measured runtime/resource comparisons.
+5. **Hardware compatibility:** runtime capability exists, but controlled real-device transpilation, queues, calibration metadata, noise experiments and execution safeguards remain.
+6. **Scalability and privacy:** add async jobs, artifact lifecycle, access controls, audit logs, PHI-safe defaults and deployment hardening.
+7. **Comprehensive delivery documentation:** architecture, user guide, API guide, model cards, dataset cards, deployment, limitations and SIH demonstration package remain.
 
 **Important scientific correction:** “Improve accuracy, sensitivity and specificity” is an evaluation objective, not a result that may be promised. EntangleX must measure whether a quantum/hybrid model improves those metrics under controlled experiments and report negative or neutral results honestly. No quantum-advantage claim is allowed without repeatable statistical and resource evidence.
 
 ## Revised future roadmap
-
-### Phase 11 — Quantum model suite
-
-- Add a quantum-kernel classifier/QSVM with dataset-linked feature maps.
-- Add a QNN or hybrid neural model with classical optimizer integration.
-- Harden VQC training with optimizer choices, early stopping and convergence diagnostics.
-- Introduce classification/regression task abstractions and a bounded quantum-regression path where appropriate.
-- Preserve identical split and preprocessing lineage for fair model comparison.
-
-**Exit gate:** models produce real, repeatable artifacts; predictions respond to input/configuration; no fixed outputs.
 
 ### Phase 12 — Biomedical modality adapters and training orchestration
 
@@ -197,4 +199,4 @@ Future phases may add cards, tabs, charts and workspaces using the existing toke
 
 ## Merge and certification policy
 
-Phases 9–10 remain on draft PR #8 until Python 3.12/Qiskit local certification is complete. Future phases must branch from the latest explicitly certified merge. No phase may be merged solely because static tests pass when its core runtime dependency was unavailable.
+Phase 11 is now merged and locally certified on Python 3.12/Qiskit. Future phases must branch from the latest explicitly certified merge. No phase may be merged solely because static tests pass when its core runtime dependency was unavailable.
