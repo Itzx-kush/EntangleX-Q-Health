@@ -14,6 +14,7 @@ from app.api.orchestration import router as orchestration_router
 from app.api.experiments import router as experiment_router
 from app.api.benchmarks import router as benchmark_router
 from app.api.explainability import router as explainability_router
+from app.api.predictions import router as prediction_router
 from app.core.config import settings
 from app.core.logging import configure_logging
 from app.data.errors import DatasetError
@@ -25,13 +26,12 @@ from app.orchestration.errors import OrchestrationError
 from app.experiments.errors import ExperimentError
 from app.benchmarking.errors import BenchmarkError
 from app.explainability.errors import ExplainabilityError
-
+from app.prediction.errors import PredictionError
 configure_logging(); logger=logging.getLogger(__name__)
-
 def create_app()->FastAPI:
     app=FastAPI(title=settings.app_name,version=settings.app_version,description="Research and decision-support platform for reproducible hybrid quantum-classical biomedical ML.")
     app.add_middleware(CORSMiddleware,allow_origins=list(settings.cors_origins),allow_credentials=False,allow_methods=["GET","POST","DELETE"],allow_headers=["*"])
-    app.include_router(health_router); app.include_router(health_router,prefix="/api/v1"); app.include_router(dataset_router); app.include_router(preprocessing_router); app.include_router(model_router); app.include_router(evaluation_router); app.include_router(quantum_router); app.include_router(qml_router); app.include_router(orchestration_router); app.include_router(experiment_router); app.include_router(benchmark_router); app.include_router(explainability_router)
+    app.include_router(health_router); app.include_router(health_router,prefix="/api/v1"); app.include_router(dataset_router); app.include_router(preprocessing_router); app.include_router(model_router); app.include_router(evaluation_router); app.include_router(quantum_router); app.include_router(qml_router); app.include_router(orchestration_router); app.include_router(experiment_router); app.include_router(benchmark_router); app.include_router(explainability_router); app.include_router(prediction_router)
     @app.exception_handler(DatasetError)
     async def dataset_error(_:Request,exc:DatasetError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.code,"message":exc.message,"details":exc.details})
     @app.exception_handler(PreprocessingError)
@@ -50,6 +50,8 @@ def create_app()->FastAPI:
     async def benchmark_error(_:Request,exc:BenchmarkError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.code,"message":exc.message,"details":exc.details})
     @app.exception_handler(ExplainabilityError)
     async def explainability_error(_:Request,exc:ExplainabilityError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.code,"message":exc.message,"details":exc.details})
+    @app.exception_handler(PredictionError)
+    async def prediction_error(_:Request,exc:PredictionError)->JSONResponse:return JSONResponse(status_code=exc.status_code,content={"error":exc.code,"message":exc.message,"details":exc.details})
     @app.exception_handler(Exception)
     async def unhandled_error(_:Request,exc:Exception)->JSONResponse:
         logger.exception("Unhandled API error")
