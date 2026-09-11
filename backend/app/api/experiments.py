@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal
 
 from fastapi import APIRouter, Depends, Query
 from fastapi.responses import JSONResponse, Response
@@ -26,9 +26,17 @@ def get_registry() -> ExperimentRegistry:
     return _registry
 
 
+def _response(record: dict[str, Any]) -> dict[str, Any]:
+    value = dict(record)
+    value["configuration_snapshot"] = value.get("configuration", {})
+    value["environment_snapshot"] = value.get("environment", {})
+    value["seed_snapshot"] = value.get("seeds", {})
+    return value
+
+
 @router.post("", response_model=ExperimentResponse, status_code=201)
 def register_experiment(payload: ExperimentCreateRequest, registry: ExperimentRegistry = Depends(get_registry)):
-    return registry.register(payload)
+    return _response(registry.register(payload))
 
 
 @router.get("", response_model=ExperimentListResponse)
@@ -41,7 +49,7 @@ def list_experiments(
     registry: ExperimentRegistry = Depends(get_registry),
 ):
     items = registry.list(search=search, status=status, task_type=task_type, model_family=model_family, modality=modality)
-    return {"items": items, "total": len(items)}
+    return {"items": [_response(item) for item in items], "total": len(items)}
 
 
 @router.post("/compare")
@@ -51,12 +59,12 @@ def compare_experiments(payload: CompareExperimentsRequest, registry: Experiment
 
 @router.get("/{experiment_id}", response_model=ExperimentResponse)
 def get_experiment(experiment_id: str, registry: ExperimentRegistry = Depends(get_registry)):
-    return registry.get(experiment_id)
+    return _response(registry.get(experiment_id))
 
 
 @router.post("/{experiment_id}/clone", response_model=ExperimentResponse, status_code=201)
 def clone_experiment(experiment_id: str, payload: CloneExperimentRequest, registry: ExperimentRegistry = Depends(get_registry)):
-    return registry.clone(experiment_id, payload)
+    return _response(registry.clone(experiment_id, payload))
 
 
 @router.get("/{experiment_id}/export")
