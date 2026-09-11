@@ -55,6 +55,12 @@ def train_vqc(payload: VQCRequest, service=Depends(vqc_service)):
     return service.train(payload)
 
 
+@router.get("/vqc/runs")
+def list_vqc_runs(encoding_run_id: str | None = None, service=Depends(vqc_service)):
+    items = [service._response(record) for record in service.runs.list_vqc(encoding_run_id)]
+    return {"items": items, "total": len(items)}
+
+
 @router.get("/vqc/{run_id}", response_model=VQCRun)
 def get_vqc(run_id: str, service=Depends(vqc_service)):
     return service.get(run_id)
