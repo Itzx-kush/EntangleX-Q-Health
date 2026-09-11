@@ -66,6 +66,14 @@ class QMLRepository:
             row = connection.execute("SELECT * FROM vqc_runs WHERE id=?", (run_id,)).fetchone()
             return self._decode(row) if row else None
 
+    def list_vqc(self, encoding_run_id=None):
+        with closing(self.connect()) as connection:
+            if encoding_run_id:
+                rows = connection.execute("SELECT * FROM vqc_runs WHERE encoding_run_id=? ORDER BY created_at DESC", (encoding_run_id,)).fetchall()
+            else:
+                rows = connection.execute("SELECT * FROM vqc_runs ORDER BY created_at DESC").fetchall()
+            return [self._decode(row) for row in rows]
+
     def create_model(self, record):
         with closing(self.connect()) as connection:
             connection.execute("INSERT INTO quantum_model_runs VALUES(?,?,?,?,?,?,?,?,?,?,?)", (
