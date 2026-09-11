@@ -4,31 +4,33 @@ A modular hybrid quantum-classical machine learning platform for biomedical dise
 
 ## Current phase
 
-**Phase 12 — Biomedical modality adapters & training orchestration — Implemented and merged.** The platform includes leakage-safe biomedical preprocessing, classical baselines and held-out evaluation, simulator-first quantum runtime diagnostics, real quantum feature encoding, VQC, QSVM and hybrid QNN models, plus Phase 12 persistent training-job orchestration and SIH-aligned EHR, genomics and medical-imaging representation validation. Phase 12 adds a common control-plane API without replacing the certified Phase 1–11 contracts.
+**Phase 13 — Experiment Registry and Reproducibility — implemented on the draft development branch.** Phase 13 adds immutable experiment lineage, environment/package capture, seed and nondeterminism records, SHA-256 artifact manifests, integrity validation, cloning, compatible descriptive comparison, dataset/model cards, and JSON/ZIP evidence export.
+
+**Phase 14 — Rigorous Classical-vs-Quantum Benchmarking — implemented on the same draft development branch.** Phase 14 aggregates user-supplied repeated stratified fold records with confidence intervals, calibration metrics, generalization gaps, training/inference/simulator and circuit-resource accounting, and honest better/comparable/worse/inconclusive conclusions. It never fabricates missing metrics or asserts clinical or quantum advantage.
 
 ## Local setup
 
 ```powershell
 python -m venv .venv
-.venv\Scripts\Activate.ps1
-python -m pip install -r backend\requirements.txt
+.venv\\Scripts\\Activate.ps1
+python -m pip install -r backend\\requirements.txt
 cd backend
 $env:PYTHONPATH="."
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-For the exact certified backend test environment, use Python 3.12 from the repository virtual environment:
+## Backend validation
 
 ```powershell
-cd D:\EntangleX-Q-Health\backend
+Set-Location D:\\EntangleX-Q-Health\\backend
 $env:PYTHONPATH = "."
-& ..\.venv\Scripts\python.exe -m unittest discover -s tests -v
+& ..\\.venv\\Scripts\\python.exe -m pytest -q
 ```
 
-Frontend verification:
+## Frontend validation
 
 ```powershell
-cd frontend
+Set-Location D:\\EntangleX-Q-Health\\frontend
 npm install
 npm test
 npm run typecheck
@@ -40,13 +42,9 @@ Open `http://localhost:5173`; API docs are at `http://127.0.0.1:8000/docs`.
 
 ## Current workflow
 
-Upload and validate → select classification or regression target → apply leakage-safe preprocessing and feature reduction → train classical baselines → evaluate on held-out data → run simulator-first quantum diagnostics → encode features with a real quantum circuit → train VQC, QSVM and/or QNN → orchestrate reproducible training jobs → validate biomedical modality representations → preserve dataset, preprocessing, encoding and model lineage in persisted artifacts.
+Upload and validate → select classification or regression target → apply leakage-safe preprocessing and feature reduction → train classical baselines → evaluate on held-out data → run simulator-first quantum diagnostics → encode features with a real quantum circuit → train VQC, QSVM and/or QNN → orchestrate reproducible training jobs → register immutable evidence → benchmark real repeated validation folds and resource measurements.
 
-See `docs/sih26139-master-roadmap.md`, `docs/sih26139-pdf-deliverable-alignment.md`, and `docs/phase-12-biomedical-orchestration.md` for the authoritative roadmap, SIH alignment, and Phase 12 implementation record.
-
-## Planned architecture
-
-React UI → FastAPI API → domain services → data/ML/QML engines → evaluation/explainability/prediction → experiment registry. Quantum execution remains simulator-first, with controlled near-term hardware support planned for later phases.
+See `docs/sih26139-master-roadmap.md`, `docs/sih26139-pdf-deliverable-alignment.md`, `docs/phase-12-biomedical-orchestration.md`, `docs/phase-13-experiment-registry.md`, and `docs/phase-14-rigorous-benchmarking.md` for the roadmap and implementation records.
 
 ## Limitations
 
