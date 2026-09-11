@@ -11,8 +11,9 @@ test('frontend exposes a centralized Phase 14 progress contract', () => {
 
 test('redesigned visual layer is neutral and responsive', () => {
   const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
-  assert.match(css, /--surface/);
-  assert.match(css, /--accent/);
+  const base = readFileSync(new URL('../src/base.css', import.meta.url), 'utf8');
+  assert.match(base, /--surface/);
+  assert.match(base, /--accent/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /@keyframes pageIn/);
 });
