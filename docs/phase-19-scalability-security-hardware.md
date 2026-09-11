@@ -11,7 +11,7 @@
 - Hardware status distinguishes simulator readiness from unavailable queue, cost, calibration and noise evidence.
 - Federated-ready privacy sandbox using weighted parameter aggregation and site metadata only. Raw patient records are never exchanged.
 - Existing orchestration retains queued/running/completed/failed/cancel-requested/cancelled/retry states; the platform limits and governance endpoints make operational bounds visible.
-- The certification workflow adds compile checks, tests, `pip check`, and non-blocking dependency scans.
+- The release checklist includes compile checks, tests, `pip check`, `pip-audit` and `npm audit` commands. Dependency findings are reviewed explicitly rather than hidden behind a fabricated clean claim.
 
 ## API surface
 

@@ -27,7 +27,7 @@ Licensed biomedical sample
 - Frontend: `npm ci`, `npm run typecheck`, `npm test`, `npm run build`.
 - API contract: `/health`, `/api/quantum/runtime/status`, `/api/platform/readiness`, `/api/platform/validation/matrix`.
 - Security: PHI/PII scan, file validation, no-raw-record logging check, environment-only secret check.
-- Dependency: the Phase 19–20 workflow runs `pip-audit` and `npm audit` as an explicit review gate; dependency scan failures do not fabricate a clean security claim.
+- Dependency: operators should run `pip-audit -r backend/requirements.txt` and `npm audit --audit-level=high`; dependency findings do not become a fabricated clean security claim.
 - Performance: use visible upload, quantum-resource and federated-site limits; benchmark results must be recorded rather than invented.
 - Accessibility: keyboard navigation, visible focus, reduced-motion behavior, responsive layout and honest empty/offline states.
 - Windows reproducibility: clean virtual environment, exact PowerShell commands, pinned lockfile and main-branch commit verification.
