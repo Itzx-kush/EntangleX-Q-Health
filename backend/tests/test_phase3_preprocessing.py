@@ -59,7 +59,9 @@ class PhaseThreePreprocessingTests(unittest.TestCase):
         self.assertEqual(result["fitted_on"], "training_only")
         self.assertEqual(result["duplicates_removed"], 1)
         self.assertGreater(result["output_features"], result["input_features"])
-        bundle = joblib.load(result["artifact_path"])
+        artifact_path = self.service.artifact_dir / Path(result["artifact_path"]).name
+        self.assertTrue(artifact_path.exists())
+        bundle = joblib.load(artifact_path)
         self.assertEqual(bundle["fitted_on"], "training_only")
 
     def test_target_is_required(self) -> None:
