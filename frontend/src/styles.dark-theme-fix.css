@@ -1,0 +1,4 @@
+/* Dark-theme hero heading contrast override. */
+[data-theme='dark'] .hero h1 {
+  color: var(--text);
+}
