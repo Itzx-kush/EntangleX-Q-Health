@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 const app = readFileSync(new URL('../src/App.tsx', import.meta.url), 'utf8');
 const api = readFileSync(new URL('../src/services/api.ts', import.meta.url), 'utf8');
 const css = readFileSync(new URL('../src/styles.css', import.meta.url), 'utf8');
+const base = readFileSync(new URL('../src/base.css', import.meta.url), 'utf8');
 const project = readFileSync(new URL('../src/config/project.ts', import.meta.url), 'utf8');
 const orchestration = readFileSync(new URL('../src/components/Phase12Orchestration.tsx', import.meta.url), 'utf8');
 const registry = readFileSync(new URL('../src/components/Phase13ExperimentRegistry.tsx', import.meta.url), 'utf8');
@@ -13,7 +14,7 @@ const experimentTypes = readFileSync(new URL('../src/types/experiment.ts', impor
 test('medical and quantum claims are bounded', () => {
   assert.match(app, /Research evidence only/i);
   assert.match(app, /quantum advantage/i);
-  assert.match(css, /--success/);
+  assert.match(base, /--success/);
 });
 
 test('phases one through seven remain integrated and configurable', () => {
@@ -41,8 +42,9 @@ test('navigation and responsive workspace behavior remain available', () => {
 
 test('professional light-first design and theme switching exist', () => {
   for (const copy of [/RESEARCH OPERATIONS/, /PROJECT_PROGRESS/, /entanglex-theme/]) assert.match(app + project, copy);
-  assert.match(css, /--surface/);
-  assert.match(css, /\[data-theme="dark"\]/);
+  assert.match(base, /--surface/);
+  assert.match(base, /--accent/);
+  assert.match(base, /html\[data-theme="dark"\]/);
   assert.match(css, /@media \(max-width: 760px\)/);
   assert.match(css, /@keyframes pageIn/);
 });
