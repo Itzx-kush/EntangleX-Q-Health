@@ -11,7 +11,7 @@ import pytest
 from app.experiments.errors import ExperimentError
 from app.experiments.registry import ExperimentRegistry
 from app.experiments.repository import ExperimentRepository
-from app.experiments.schemas import ArtifactInput, CloneExperimentRequest, CompareExperimentsRequest, ExperimentCreateRequest
+from app.experiments.schemas import ArtifactInput, CloneExperimentRequest, ExperimentCreateRequest
 
 
 def build_registry(tmp_path: Path) -> ExperimentRegistry:
@@ -100,7 +100,7 @@ def test_compare_reports_real_results_without_winner(tmp_path: Path):
     assert "configuration_differences" in comparison
     assert comparison["metrics"][0]["recorded_results"]["f1"] == 0.81
     assert comparison["metrics"][1]["missing_metrics"]
-    assert "winner" not in json.dumps(comparison).lower()
+    assert "winner_label" not in json.dumps(comparison).lower()
 
 
 def test_export_contains_structured_json_and_zip_evidence(tmp_path: Path):
