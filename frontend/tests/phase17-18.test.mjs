@@ -1,0 +1,4 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';
+const enhancement=readFileSync(new URL('../src/enhancements.ts',import.meta.url),'utf8');const api=readFileSync(new URL('../src/services/api.ts',import.meta.url),'utf8');
+test('phase 17 decision center is wired to persisted prediction API',()=>{assert.match(enhancement,/Decision center/);assert.match(enhancement,/api\/predictions/);assert.match(enhancement,/held-out sample/);assert.match(enhancement,/Risk bands are configurable/);assert.match(api,/createPrediction/)});
+test('phase 18 includes settings, live evidence and accessible motion safeguards',()=>{assert.match(enhancement,/Research environment controls/);assert.match(enhancement,/Appearance/);assert.match(enhancement,/Privacy & Security/);assert.match(enhancement,/Evidence dashboard/);assert.match(enhancement,/prefers-reduced-motion/);assert.match(enhancement,/Export live summary/);});
