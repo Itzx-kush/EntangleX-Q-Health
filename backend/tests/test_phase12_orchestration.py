@@ -27,7 +27,7 @@ def test_genomics_adapter_warns_for_high_dimension():
 def test_image_adapter_rejects_raw_image():
     with pytest.raises(Exception) as exc:
         validate_modality(BiomedicalValidationRequest(modality="medical_image", samples=4, embedding_dim=512))
-    assert "RAW_IMAGE_NOT_SUPPORTED" in str(exc.value)
+    assert exc.value.code == "RAW_IMAGE_NOT_SUPPORTED"
 
 
 def test_image_adapter_accepts_embedding():
