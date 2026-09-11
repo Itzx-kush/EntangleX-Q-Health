@@ -53,6 +53,12 @@ class ExperimentRepository:
             connection.commit()
 
     def create(self, record: dict[str, Any]) -> None:
+        columns = (
+            "id", "name", "description", "task_type", "model_family", "modality", "status",
+            "configuration_json", "environment_json", "seeds_json", "artifacts_json",
+            "parent_experiment_id", "result_references_json", "recorded_results_json",
+            "dataset_card_json", "model_card_json", "scientific_warnings_json", "created_at", "updated_at",
+        )
         values = (
             record["id"], record["name"], record["description"], record["task_type"],
             record["model_family"], record["modality"], record["status"],
@@ -65,8 +71,9 @@ class ExperimentRepository:
             json.dumps(record["scientific_warnings"]), record["created_at"], record["updated_at"],
         )
         with closing(self.connect()) as connection:
+            placeholders = ",".join("?" for _ in columns)
             connection.execute(
-                "INSERT INTO experiments VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", values
+                f"INSERT INTO experiments ({','.join(columns)}) VALUES ({placeholders})", values
             )
             connection.commit()
 
