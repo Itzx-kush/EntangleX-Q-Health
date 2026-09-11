@@ -4,7 +4,7 @@ A modular hybrid quantum-classical machine learning platform for biomedical dise
 
 ## Current phase
 
-Phase 3 adds leakage-safe configurable preprocessing: stratified splitting, train-only fitted imputation, categorical encoding, outlier bounds, scaling, duplicate handling, persisted pipeline artifacts, run metadata, APIs, and a functional configuration interface. It does not perform feature selection, PCA, model training, prediction, or fabricate metrics.
+**Phase 11 — Quantum model suite — Certified and merged.** The platform now includes leakage-safe biomedical preprocessing, classical baselines and held-out evaluation, simulator-first quantum runtime diagnostics, real quantum feature encoding, VQC, QSVM and hybrid QNN models, plus bounded classification/regression task support. Phase 11 was merged into `main` and locally certified with the Python 3.12 project environment: **43 backend tests passed in 1.729s (`OK`)**.
 
 ## Local setup
 
@@ -17,7 +17,15 @@ $env:PYTHONPATH="."
 uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ```
 
-In a second PowerShell:
+For the exact certified backend test environment, use Python 3.12 from the repository virtual environment:
+
+```powershell
+cd D:\EntangleX-Q-Health\backend
+$env:PYTHONPATH = "."
+& ..\.venv\Scripts\python.exe -m unittest discover -s tests -v
+```
+
+Frontend verification:
 
 ```powershell
 cd frontend
@@ -30,16 +38,16 @@ python -m http.server 5173 -d dist
 
 Open `http://localhost:5173`; API docs are at `http://127.0.0.1:8000/docs`.
 
-## Phase 3 workflow
+## Current workflow
 
-Upload and validate → select binary target → remove exact duplicates if configured → stratified split → fit outlier policy and scikit-learn transformations on training data only → transform held-out test → persist the fitted bundle and run metadata.
+Upload and validate → select classification or regression target → apply leakage-safe preprocessing and feature reduction → train classical baselines → evaluate on held-out data → run simulator-first quantum diagnostics → encode features with a real quantum circuit → train VQC, QSVM and/or QNN → preserve dataset, preprocessing, encoding and model lineage in persisted artifacts.
 
-See `docs/phase-3-report.md` for leakage controls and supported configuration.
+See `docs/sih26139-master-roadmap.md` for the authoritative roadmap and `docs/phase-11-qsvm-qnn-model-suite.md` for the Phase 11 implementation and certification record.
 
 ## Planned architecture
 
-React UI → FastAPI API → domain services → data/ML/QML engines → evaluation/explainability/prediction → experiment registry. Quantum execution will use a simulator-first backend abstraction.
+React UI → FastAPI API → domain services → data/ML/QML engines → evaluation/explainability/prediction → experiment registry. Quantum execution remains simulator-first, with controlled near-term hardware support planned for later phases.
 
 ## Limitations
 
-Phase 2 performs no imputation, scaling, encoding, feature selection, PCA, model training, explainability, or prediction. Quantum simulation is not physical quantum hardware. Future QML may perform better, similarly, or worse than classical baselines; results will not constitute clinical validation.
+EntangleX is a research and decision-support prototype, not a clinically validated diagnostic system. Quantum simulation is not physical quantum hardware. Model metrics are valid only for their recorded dataset split and configuration. No quantum-advantage or clinical-superiority claim is made without repeatable statistical and resource evidence.
