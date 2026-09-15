@@ -1,9 +1,8 @@
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 from pydantic import BaseModel, Field
 
 TaskType = Literal["classification", "regression"]
-
 
 class EncodingRequest(BaseModel):
     preprocessing_run_id: str
@@ -11,7 +10,6 @@ class EncodingRequest(BaseModel):
     qubits: int = Field(default=4, ge=1, le=8)
     entanglement: Literal["linear", "ring"] = "linear"
     seed: int = 42
-
 
 class EncodingRun(BaseModel):
     id: str
@@ -33,7 +31,6 @@ class EncodingRun(BaseModel):
     artifact_path: str
     created_at: datetime
 
-
 class VQCRequest(BaseModel):
     encoding_run_id: str
     ansatz_reps: int = Field(default=2, ge=1, le=4)
@@ -43,7 +40,6 @@ class VQCRequest(BaseModel):
     training_samples: int = Field(default=32, ge=4, le=128)
     evaluation_samples: int = Field(default=128, ge=4, le=512)
     seed: int = 42
-
 
 class VQCRun(BaseModel):
     id: str
@@ -82,7 +78,6 @@ class VQCRun(BaseModel):
     artifact_path: str
     created_at: datetime
 
-
 class QSVMRequest(BaseModel):
     encoding_run_id: str
     task_type: Literal["classification"] = "classification"
@@ -91,7 +86,6 @@ class QSVMRequest(BaseModel):
     training_samples: int = Field(default=32, ge=4, le=64)
     evaluation_samples: int = Field(default=64, ge=4, le=256)
     seed: int = 42
-
 
 class QNNRequest(BaseModel):
     encoding_run_id: str
@@ -103,7 +97,6 @@ class QNNRequest(BaseModel):
     training_samples: int = Field(default=24, ge=4, le=64)
     evaluation_samples: int = Field(default=64, ge=4, le=256)
     seed: int = 42
-
 
 class QuantumModelRun(BaseModel):
     id: str
@@ -128,7 +121,12 @@ class QuantumModelRun(BaseModel):
     artifact_path: str
     created_at: datetime
 
+class VQCRegistryRun(VQCRun):
+    model_type: Literal["vqc"] = "vqc"
+    metrics: dict[str, float | int | None]
+
+QuantumRegistryRun = Annotated[VQCRegistryRun | QuantumModelRun, Field(discriminator="model_type")]
 
 class QuantumModelRunList(BaseModel):
-    items: list[QuantumModelRun]
+    items: list[QuantumRegistryRun]
     total: int

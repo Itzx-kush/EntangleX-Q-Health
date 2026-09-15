@@ -22,7 +22,6 @@ CREATE TABLE IF NOT EXISTS quantum_model_runs(
 CREATE INDEX IF NOT EXISTS idx_quantum_models_encoding ON quantum_model_runs(encoding_run_id,model_type,created_at);
 """
 
-
 class QMLRepository:
     def __init__(self, database_url=None):
         self.path = sqlite_path(database_url)
@@ -102,6 +101,21 @@ class QMLRepository:
         query += " ORDER BY created_at DESC"
         with closing(self.connect()) as connection:
             return [self._decode(row) for row in connection.execute(query, params).fetchall()]
+
+    def list_registry_models(self, encoding_run_id=None):
+        """Return all persisted QML model families without duplicating records.
+
+        VQC remains stored in vqc_runs. QSVM and QNN remain stored in
+        quantum_model_runs. The synthetic model_type on VQC is registry metadata
+        only and does not modify its stored record or existing table contract.
+        """
+        vqc_records = [{**record, "model_type": "vqc"} for record in self.list_vqc(encoding_run_id)]
+        model_records = self.list_models(encoding_run_id)
+        return sorted(
+            [*vqc_records, *model_records],
+            key=lambda record: (record.get("created_at", ""), record.get("id", "")),
+            reverse=True,
+        )
 
     @staticmethod
     def _decode(row):
