@@ -1,4 +1,4 @@
-void import("../experiment-center");
+import "../experiment-center";
 
 export const PROJECT_PROGRESS = Object.freeze({
   current: 14,
