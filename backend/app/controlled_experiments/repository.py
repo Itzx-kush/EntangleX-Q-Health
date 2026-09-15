@@ -39,11 +39,10 @@ class ControlledExperimentRepository:
             c.execute("INSERT INTO controlled_experiments VALUES(?,?,?,?,?,?,?,?,?,?,?,?)", (value["id"],value["name"],value["preprocessing_run_id"],value.get("encoding_run_id"),value["comparison_fingerprint"],value["status"],json.dumps(value["configuration"]),json.dumps(value["warnings"]),value.get("parent_experiment_id"),value["created_at"],value.get("started_at"),value.get("finished_at"))); c.commit()
     def create_job(self, value: dict[str, Any]):
         with closing(self.connect()) as c:
-            c.execute("INSERT INTO controlled_model_jobs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (value["id"],value["experiment_id"],value["model_type"],value["status"],value["stage"],value["checkpoint"],value["total_checkpoints"],int(value.get("cancel_requested",False)),None,None,value["created_at"],None,None)); c.commit()
-    def update_experiment(self, experiment_id: str, **values):
-        self._update("controlled_experiments", experiment_id, values)
+            c.execute("INSERT INTO controlled_model_jobs VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)", (value["id"],value["experiment_id"],value["model_type"],value["status"],value["stage"],value["checkpoint"],value["total_checkpoints"],int(value.get("cancel_requested",False)),None,None,value["created_at"],None,None)); c.commit()
+    def update_experiment(self, experiment_id: str, **values): self._update("controlled_experiments", experiment_id, values)
     def update_job(self, job_id: str, **values):
-        encoded = {k:(json.dumps(v) if k in {"result_json","error_json"} and v is not None else int(v) if k=="cancel_requested" else v) for k,v in values.items()}; self._update("controlled_model_jobs",job_id,encoded)
+        encoded={k:(json.dumps(v) if k in {"result_json","error_json"} and v is not None else int(v) if k=="cancel_requested" else v) for k,v in values.items()}; self._update("controlled_model_jobs",job_id,encoded)
     def _update(self, table: str, identifier: str, values: dict[str, Any]):
         if not values:return
         with closing(self.connect()) as c:
@@ -57,10 +56,10 @@ class ControlledExperimentRepository:
         with closing(self.connect()) as c:
             row=c.execute("SELECT * FROM controlled_model_jobs WHERE id=?",(job_id,)).fetchone(); return self._job(row) if row else None
     def jobs(self, experiment_id: str):
-        with closing(self.connect()) as c:return [self._job(row) for row in c.execute("SELECT * FROM controlled_model_jobs WHERE experiment_id=? ORDER BY created_at",(experiment_id,)).fetchall()]
+        with closing(self.connect()) as c:return [self._job(row) for row in c.execute("SELECT * FROM controlled_model_jobs WHERE experiment_id=? ORDER BY created_at,id",(experiment_id,)).fetchall()]
     @staticmethod
     def _experiment(row):
         value=dict(row); value["configuration"]=json.loads(value.pop("configuration_json")); value["warnings"]=json.loads(value.pop("warnings_json")); return value
     @staticmethod
     def _job(row):
-        value=dict(row); value["cancel_requested"]=bool(value["cancel_requested"]); value["result"]=json.loads(value.pop("result_json")) if value["result_json"] else None; value["error"]=json.loads(value.pop("error_json")) if value["error_json"] else None; return value
+        value=dict(row); value["cancel_requested"]=bool(value["cancel_requested"]); raw_result=value.pop("result_json"); raw_error=value.pop("error_json"); value["result"]=json.loads(raw_result) if raw_result else None; value["error"]=json.loads(raw_error) if raw_error else None; return value
