@@ -31,8 +31,9 @@ class DatasetRepository:
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.ensure_schema()
     def connect(self):
-        connection=sqlite3.connect(self.path)
+        connection=sqlite3.connect(self.path,timeout=10)
         connection.row_factory=sqlite3.Row
+        connection.execute("PRAGMA busy_timeout=10000")
         return connection
     def ensure_schema(self) -> None:
         with closing(self.connect()) as connection:
@@ -57,4 +58,4 @@ class DatasetRepository:
             connection.execute("UPDATE datasets SET target_column=?, target_json=?, warnings_json=? WHERE id=?",(target_column,json.dumps(target),json.dumps(warnings),dataset_id)); connection.commit()
     @staticmethod
     def _decode(row: sqlite3.Row) -> dict[str, Any]:
-        value=dict(row); value["profile"]=json.loads(value.pop("profile_json")); value["target"]=json.loads(value.pop("target_json")) if value.get("target_json") else None; value.pop("target_json",None); value["warnings"]=json.loads(value.pop("warnings_json")); return value
+        value=dict(row); value["profile"]=json.loads(value.pop("profile_json")); value["target"]=json.loads(value["target_json"]) if value.get("target_json") else None; value.pop("target_json",None); value["warnings"]=json.loads(value.pop("warnings_json")); return value
