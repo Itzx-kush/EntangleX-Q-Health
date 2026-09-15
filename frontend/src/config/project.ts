@@ -1,3 +1,5 @@
+void import("../experiment-center");
+
 export const PROJECT_PROGRESS = Object.freeze({
   current: 14,
   total: 20,
