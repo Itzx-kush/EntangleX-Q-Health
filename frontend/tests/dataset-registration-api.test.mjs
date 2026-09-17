@@ -1,0 +1,4 @@
+import test from'node:test';import assert from'node:assert/strict';import{readFileSync}from'node:fs';const api=readFileSync(new URL('../src/services/api.ts',import.meta.url),'utf8');
+test('dataset registration has a real bounded request lifecycle',()=>{assert.match(api,/FormData/);assert.match(api,/\/api\/datasets\/upload/);assert.match(api,/AbortController/);assert.match(api,/120_000/);assert.match(api,/finally\{globalThis\.clearTimeout/);assert.doesNotMatch(api,/@ts-nocheck/)});
+test('network timeout validation and invalid responses are distinct',()=>{assert.match(api,/readonly kind:'timeout'\|'network'\|'http'\|'invalid_response'/);for(const value of[/error\.message/,/error\.details/,/response\.status/])assert.match(api,value)});
+test('upload is never automatically retried or fabricated',()=>{assert.doesNotMatch(api,/setInterval|Math\.random|mock.*DatasetSummary|fake.*dataset/i);assert.match(api,/return await fetchApi<DatasetSummary>/)});
